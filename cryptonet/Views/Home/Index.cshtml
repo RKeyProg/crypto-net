@@ -1,0 +1,153 @@
+﻿@{
+    ViewData["Title"] = "CryptoNet | Твой проводник в мире криптоактивов";
+}
+
+<div class="hero-section position-relative overflow-hidden">
+    <div class="blob-bg shadow-lg"></div>
+
+    <div class="container position-relative py-5">
+        <div class="row align-items-center py-5">
+            <div class="col-lg-6 text-start mb-5 mb-lg-0">
+                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 fw-bold">
+                    ✨ Искусственный интеллект для трейдинга
+                </span>
+                <h1 class="display-3 fw-bold text-dark mb-4">
+                    Управляй крипто-портфелем <span class="text-primary">умнее</span>
+                </h1>
+                <p class="lead text-muted mb-5 pe-lg-5">
+                    CryptoNet объединяет глубокую аналитику, отслеживание активов в реальном времени и прогнозы на базе нейросетей Llama 3.
+                </p>
+                <div class="d-flex gap-3">
+                    <a asp-controller="Market" asp-action="Dashboard" class="btn btn-primary btn-lg rounded-pill px-5 py-3 shadow-lg fw-bold hover-up">
+                        Начать работу
+                    </a>
+                    <a asp-controller="Coin" asp-action="Market" class="btn btn-outline-dark btn-lg rounded-pill px-4 py-3 fw-bold">
+                        Обзор рынка
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="hero-image-card p-4 rounded-5 shadow-2xl bg-white bg-opacity-50 backdrop-blur">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-4 rounded-4 bg-white shadow-sm border text-center">
+                                <i class="bi bi-graph-up-arrow text-success fs-2 mb-2 d-block"></i>
+                                <span class="d-block fw-bold fs-4">+24.5%</span>
+                                <small class="text-muted">Прогноз роста</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mt-4">
+                            <div class="p-4 rounded-4 bg-primary text-white shadow-sm text-center">
+                                <i class="bi bi-cpu fs-2 mb-2 d-block"></i>
+                                <span class="d-block fw-bold fs-4">Llama 3</span>
+                                <small class="opacity-75">AI Аналитика</small>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-3 text-center">
+                            <div class="p-3 rounded-4 bg-white border shadow-sm d-flex align-items-center justify-content-center">
+                                <div class="spinner-grow spinner-grow-sm text-primary me-2"></div>
+                                <span class="fw-bold">Отслеживание 5000+ монет в реальном времени</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4 text-center">
+        <div class="col-md-4">
+            <div class="feature-box p-4">
+                <div class="icon-circle bg-info bg-opacity-10 text-info mx-auto mb-4">
+                    <i class="bi bi-wallet2 fs-3"></i>
+                </div>
+                <h4 class="fw-bold">Умный портфель</h4>
+                <p class="text-muted">Автоматический расчет прибыли, убытков и диверсификации ваших активов.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-box p-4">
+                <div class="icon-circle bg-success bg-opacity-10 text-success mx-auto mb-4">
+                    <i class="bi bi-robot fs-3"></i>
+                </div>
+                <h4 class="fw-bold">AI Ассистент</h4>
+                <p class="text-muted">Задавай вопросы чат-боту о состоянии рынка и получай мгновенные инсайты.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-box p-4">
+                <div class="icon-circle bg-warning bg-opacity-10 text-warning mx-auto mb-4">
+                    <i class="bi bi-bell fs-3"></i>
+                </div>
+                <h4 class="fw-bold">Price Alerts</h4>
+                <p class="text-muted">Мгновенные уведомления, когда цена достигает вашего целевого уровня.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        background: #fbfcfe;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Декоративное пятно на фоне */
+    .blob-bg {
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(13,110,253,0.08) 0%, rgba(255,255,255,0) 70%);
+        z-index: 0;
+        border-radius: 50%;
+    }
+
+    .backdrop-blur {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .hero-image-card {
+        border: 1px solid rgba(255,255,255,0.4);
+        background: rgba(255, 255, 255, 0.4);
+    }
+
+    .icon-circle {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+    }
+
+    .hover-up {
+        transition: all 0.3s ease;
+    }
+
+        .hover-up:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(13,110,253,0.3) !important;
+        }
+
+    .feature-box {
+        transition: all 0.3s ease;
+        border-radius: 24px;
+    }
+
+        .feature-box:hover {
+            background: #fff;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+
+    .shadow-2xl {
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    }
+</style>

@@ -1,0 +1,251 @@
+﻿@model List<dynamic>
+@{
+    ViewData["Title"] = "Уведомления о ценах | CryptoNet";
+}
+
+<div class="container-fluid py-4 bg-light min-vh-100">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">🔔 Уведомления</h2>
+                <p class="text-muted small mb-0">Следите за рынком, даже когда вы не в приложении</p>
+            </div>
+            <button class="btn btn-primary rounded-pill px-4 py-2 shadow-sm d-flex align-items-center justify-content-center"
+                    data-bs-toggle="modal" data-bs-target="#createAlertModal">
+                <i class="bi bi-plus-lg me-2"></i> Создать уведомление
+            </button>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-white text-uppercase small fw-bold text-muted">
+                            <tr>
+                                <th class="ps-4 py-3">Монета</th>
+                                <th class="py-3">Условие</th>
+                                <th class="py-3">Цель (Target)</th>
+                                <th class="py-3">Текущая цена</th>
+                                <th class="py-3">Статус</th>
+                                <th class="py-3 text-end pe-4">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var alert in Model)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="coin-icon-sm bg-primary text-white rounded-circle me-3">
+                                                    @alert.Symbol.ToUpper().Substring(0, 1)
+                                                </div>
+                                                <div>
+                                                    <span class="d-block fw-bold text-dark">@alert.Coin</span>
+                                                    <span class="text-muted smaller">@alert.Symbol.ToUpper()</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (alert.Condition == "above")
+                                            {
+                                                <span class="text-success small fw-bold">📈 Выше цены</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-danger small fw-bold">📉 Ниже цены</span>
+                                            }
+                                        </td>
+                                        <td class="fw-bold">@alert.TargetPrice.ToString("N4") $</td>
+                                        <td class="text-muted">@alert.CurrentPrice.ToString("N4") $</td>
+                                        <td>
+                                            @if (alert.IsTriggered)
+                                            {
+                                                <span class="badge-status success">Сработало</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge-status active">Активно</span>
+                                            }
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <form method="post" asp-action="Delete" onsubmit="return confirm('Удалить уведомление?');" class="d-inline">
+                                                <input type="hidden" name="id" value="@alert.Id" />
+                                                <button type="submit" class="btn btn-action-delete shadow-none">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <div class="py-4">
+                                            <i class="bi bi-bell-slash text-muted" style="font-size: 3rem;"></i>
+                                            <p class="text-muted mt-3">У вас пока нет активных уведомлений.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createAlertModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold">Новый Alert</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-controller="Alerts" asp-action="Create">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="coinId" id="coinIdHidden" />
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Выберите актив</label>
+                        <select class="form-select bg-light border-0 py-2 shadow-none rounded-3" id="coinSelect" onchange="syncCoin(); loadPrice();">
+                            @foreach (var c in ViewBag.Coins)
+                            {
+                                <option value="@c.Id">@c.Name (@c.Symbol.ToUpper())</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Условие триггера</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="conditionType" id="condAbove" value="above" checked>
+                                <label class="btn btn-outline-success w-100 rounded-3 py-2" for="condAbove">Выше 📈</label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="conditionType" id="condBelow" value="below">
+                                <label class="btn btn-outline-danger w-100 rounded-3 py-2" for="condBelow">Ниже 📉</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Целевая цена ($)</label>
+                        <input type="number" step="0.00000001" class="form-control bg-light border-0 py-3 shadow-none rounded-3 fs-5 fw-bold text-primary"
+                               id="priceInput" name="targetPrice" required placeholder="0.00">
+                        <div id="currentPriceHelp" class="mt-2 small text-primary">
+                            <div class="spinner-border spinner-border-sm me-1" role="status"></div> Загрузка цены...
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 p-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Отмена</button>
+                    <button class="btn btn-primary rounded-pill px-4 shadow-sm" type="submit">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Кастомные статусы */
+    .badge-status {
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+        .badge-status.active {
+            background: #e0f2ff;
+            color: #007bff;
+        }
+
+        .badge-status.success {
+            background: #e6fffa;
+            color: #38b2ac;
+        }
+
+    /* Иконка монеты (заглушка) */
+    .coin-icon-sm {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    /* Кнопка удаления */
+    .btn-action-delete {
+        color: #adb5bd;
+        background: none;
+        border: none;
+        transition: color 0.2s;
+        font-size: 1.2rem;
+    }
+
+        .btn-action-delete:hover {
+            color: #dc3545;
+        }
+
+    /* Тонкие настройки таблицы */
+    .table thead th {
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .table tbody tr {
+        transition: background 0.2s;
+    }
+
+    .smaller {
+        font-size: 0.75rem;
+    }
+</style>
+
+<script>
+    // Твоя логика скриптов остается такой же, просто немного почистим ее
+    function syncCoin() {
+        const select = document.getElementById("coinSelect");
+        const hiddenInput = document.getElementById("coinIdHidden");
+        if (select && hiddenInput) hiddenInput.value = select.value;
+    }
+
+    async function loadPrice() {
+        const coinId = document.getElementById("coinSelect").value;
+        const helpText = document.getElementById("currentPriceHelp");
+        const priceInput = document.getElementById("priceInput");
+
+        helpText.innerHTML = `<div class="spinner-border spinner-border-sm me-1"></div> Обновляем...`;
+
+        try {
+            const res = await fetch(`/Alerts/GetCurrentPrice?coinId=${coinId}`);
+            const data = await res.json();
+            if (data && data.price !== null) {
+                const rawPrice = parseFloat(data.price);
+                const formattedPrice = rawPrice < 1 ? rawPrice.toFixed(8) : rawPrice.toFixed(2);
+                priceInput.value = formattedPrice;
+                helpText.innerText = `Текущая цена: ${formattedPrice} $`;
+            }
+        } catch (err) {
+            helpText.innerText = "Не удалось загрузить цену";
+        }
+    }
+
+    document.querySelector('form').onsubmit = function() {
+        const priceInput = document.getElementById("priceInput");
+        priceInput.value = priceInput.value.replace(',', '.');
+    };
+
+    document.addEventListener("DOMContentLoaded", function() {
+        syncCoin();
+        loadPrice();
+    });
+</script>

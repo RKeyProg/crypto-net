@@ -1,0 +1,110 @@
+﻿@{
+    ViewData["Title"] = "Политика конфиденциальности";
+}
+
+<div class="container-fluid py-5 bg-light min-vh-100">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-white border-0 pt-5 pb-0 px-5">
+                        <span class="badge bg-primary bg-opacity-10 text-primary mb-3 px-3 py-2 rounded-pill fw-bold">
+                            Дата вступления в силу: 10 мая 2026 г.
+                        </span>
+                        <h1 class="fw-bold text-dark display-5">Политика конфиденциальности</h1>
+                        <p class="text-muted lead mt-3">Ваша безопасность и приватность — наш главный приоритет при работе с криптоактивами.</p>
+                        <hr class="mt-4 mb-0 opacity-25">
+                    </div>
+
+                    <div class="card-body p-5 pt-4">
+                        <section class="mb-5">
+                            <h4 class="fw-bold text-dark d-flex align-items-center mb-3">
+                                <span class="badge bg-primary rounded-circle me-3 p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem;">1</span>
+                                Сбор информации
+                            </h4>
+                            <p class="text-secondary lh-lg">
+                                Мы собираем только те данные, которые необходимы для функционирования платформы **CryptoNet**: адрес электронной почты, никнейм и данные о составе вашего криптовалютного портфеля, которые вы вносите добровольно для анализа ИИ.
+                            </p>
+                        </section>
+
+                        <section class="mb-5">
+                            <h4 class="fw-bold text-dark d-flex align-items-center mb-3">
+                                <span class="badge bg-primary rounded-circle me-3 p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem;">2</span>
+                                Использование данных
+                            </h4>
+                            <p class="text-secondary lh-lg">
+                                Ваши данные используются исключительно для:
+                            </p>
+                            <ul class="list-group list-group-flush border-0 mb-3">
+                                <li class="list-group-item bg-transparent px-0 border-0 d-flex align-items-start">
+                                    <i class="bi bi-check2-circle text-primary me-3 mt-1"></i>
+                                    Персонализации ответов AI-ассистента на основе ваших активов.
+                                </li>
+                                <li class="list-group-item bg-transparent px-0 border-0 d-flex align-items-start">
+                                    <i class="bi bi-check2-circle text-primary me-3 mt-1"></i>
+                                    Отправки уведомлений о достижении целевой цены (Price Alerts).
+                                </li>
+                                <li class="list-group-item bg-transparent px-0 border-0 d-flex align-items-start">
+                                    <i class="bi bi-check2-circle text-primary me-3 mt-1"></i>
+                                    Обеспечения безопасности вашего аккаунта.
+                                </li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-5">
+                            <h4 class="fw-bold text-dark d-flex align-items-center mb-3">
+                                <span class="badge bg-primary rounded-circle me-3 p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.8rem;">3</span>
+                                Безопасность и AI
+                            </h4>
+                            <p class="text-secondary lh-lg">
+                                Мы используем передовые методы шифрования (SHA-256) для хранения паролей. При взаимодействии с AI-моделями (Groq/Llama 3) ваши данные передаются в обезличенном виде без привязки к вашей личности.
+                            </p>
+                        </section>
+
+                        <div class="alert alert-primary border-0 rounded-4 p-4 mb-0 mt-5 shadow-sm">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary text-white rounded-circle p-3 me-4 d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-shield-check fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Остались вопросы по безопасности?</h6>
+                                    <p class="mb-0 small opacity-75">Напишите нам на support@cryptonet.com — мы ответим в течение 24 часов.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-link text-muted text-decoration-none small">
+                        <i class="bi bi-arrow-left me-2"></i> Вернуться на главную
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .lh-lg {
+        line-height: 1.8 !important;
+    }
+
+    .bg-light {
+        background-color: #f8f9fc !important;
+    }
+
+    .card {
+        background: #ffffff;
+    }
+
+    .badge {
+        font-weight: 500;
+    }
+
+    .list-group-item {
+        padding: 0.75rem 0;
+        font-size: 0.95rem;
+        color: #4b5563;
+    }
+</style>

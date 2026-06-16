@@ -1,0 +1,136 @@
+﻿@model cryptonet.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Регистрация | CryptoNet";
+}
+
+<div class="auth-page d-flex align-items-center justify-content-center py-5">
+    <div class="col-xl-5 col-lg-6 col-md-8 col-sm-11">
+        <div class="auth-card shadow-lg border-0 rounded-4 overflow-hidden bg-white">
+            <div class="auth-header-accent" style="height: 6px; background: linear-gradient(90deg, #0d6efd, #0dcaf0);"></div>
+
+            <div class="p-5">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold">Создать аккаунт</h2>
+                    <p class="text-muted">Начните управлять активами с CryptoNet</p>
+                </div>
+
+                <div asp-validation-summary="All" class="alert alert-danger small py-2"></div>
+
+                <form method="post" class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold text-uppercase opacity-75">Логин</label>
+                        <input asp-for="Username" class="form-control bg-light border-0 shadow-none py-2" placeholder="Придумайте никнейм" />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold text-uppercase opacity-75">Email</label>
+                        <input asp-for="Email" type="email" class="form-control bg-light border-0 shadow-none py-2" placeholder="name@example.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-uppercase opacity-75">Имя</label>
+                        <input asp-for="FirstName" class="form-control bg-light border-0 shadow-none py-2" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-uppercase opacity-75">Фамилия</label>
+                        <input asp-for="LastName" class="form-control bg-light border-0 shadow-none py-2" />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-uppercase opacity-75">Пароль</label>
+                        <div class="input-group bg-light rounded-3 overflow-hidden border">
+                            <input asp-for="Password" type="password" id="passwordInput" class="form-control border-0 bg-transparent shadow-none py-2" />
+                            <button type="button" class="btn border-0 text-muted shadow-none" id="togglePassword">
+                                <i class="bi bi-eye">👁</i>
+                            </button>
+                        </div>
+
+                        <div id="passwordStrength" class="mt-2 d-flex gap-1" style="height: 4px;">
+                            <div class="strength-bar flex-grow-1 bg-secondary opacity-25 rounded"></div>
+                            <div class="strength-bar flex-grow-1 bg-secondary opacity-25 rounded"></div>
+                            <div class="strength-bar flex-grow-1 bg-secondary opacity-25 rounded"></div>
+                        </div>
+
+                        <div class="mt-2 d-flex gap-3">
+                            <small id="reqLength" class="text-muted">● Мин. 6 симв.</small>
+                            <small id="reqDigit" class="text-muted">● Цифра</small>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-uppercase opacity-75">Повтор пароля</label>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control bg-light border-0 shadow-none py-2" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-3 fw-bold shadow-sm transition-all hover-up">
+                            Зарегистрироваться
+                        </button>
+                    </div>
+                </form>
+
+                <p class="text-center mt-4 mb-0 small text-muted">
+                    Уже есть аккаунт? <a asp-action="Login" class="text-primary fw-bold text-decoration-none">Войти</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-page {
+        background: #f8f9fa;
+        min-height: 90vh;
+    }
+
+    .form-control:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 3px rgba(13,110,253,0.1) !important;
+    }
+
+    .req-item-valid {
+        color: #198754 !important;
+        font-weight: bold;
+    }
+
+    .hover-up:hover {
+        transform: translateY(-2px);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        const passwordInput = document.getElementById('passwordInput');
+        const reqLength = document.getElementById('reqLength');
+        const reqDigit = document.getElementById('reqDigit');
+        const bars = document.querySelectorAll('.strength-bar');
+
+        passwordInput.addEventListener('input', function() {
+            const val = passwordInput.value;
+            const isLong = val.length >= 6;
+            const hasDigit = /\d/.test(val);
+
+            reqLength.className = isLong ? 'req-item-valid small' : 'text-muted small';
+            reqDigit.className = hasDigit ? 'req-item-valid small' : 'text-muted small';
+
+            let score = (isLong ? 1 : 0) + (hasDigit ? 1 : 0) + (val.length > 10 ? 1 : 0);
+            bars.forEach((bar, i) => {
+                bar.className = 'strength-bar flex-grow-1 rounded opacity-100';
+                if(i < score) {
+                    bar.classList.add(score === 1 ? 'bg-danger' : (score === 2 ? 'bg-warning' : 'bg-success'));
+                } else {
+                    bar.classList.add('bg-secondary', 'opacity-25');
+                }
+            });
+        });
+
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+        });
+    </script>
+}

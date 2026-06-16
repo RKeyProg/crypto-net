@@ -1,0 +1,135 @@
+﻿@model cryptonet.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Вход | CryptoNet";
+}
+
+<div class="auth-page d-flex align-items-center justify-content-center py-5">
+    <div class="col-xl-4 col-lg-5 col-md-7 col-sm-10">
+        <div class="auth-card shadow-lg border-0 rounded-4 overflow-hidden bg-white">
+
+            <div class="auth-header-accent" style="height: 6px; background: linear-gradient(90deg, #0d6efd, #0dcaf0);"></div>
+
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="auth-icon-circle mb-3 mx-auto">
+                        <i class="bi bi-person-lock">🔑</i>
+                    </div>
+                    <h2 class="fw-bold">С возвращением!</h2>
+                    <p class="text-muted small">Войдите, чтобы управлять своим портфелем</p>
+                </div>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger border-0 bg-light-danger text-danger small rounded-3 mb-4">
+                        <div asp-validation-summary="All"></div>
+                    </div>
+                }
+
+                <form method="post" class="auth-form">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-uppercase opacity-75">Логин или Email</label>
+                        <div class="input-group bg-light rounded-3 overflow-hidden border">
+                            <span class="input-group-text border-0 bg-transparent opacity-50 pe-0">
+                                <i class="bi bi-envelope">👤</i>
+                            </span>
+                            <input asp-for="UsernameOrEmail" class="form-control border-0 bg-transparent py-2 shadow-none"
+                                   placeholder="Введите данные" required />
+                        </div>
+                        <span asp-validation-for="UsernameOrEmail" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-uppercase opacity-75">Пароль</label>
+                        <div class="input-group bg-light rounded-3 overflow-hidden border">
+                            <span class="input-group-text border-0 bg-transparent opacity-50 pe-0">
+                                <i class="bi bi-key">🔒</i>
+                            </span>
+                            <input asp-for="Password" type="password" id="loginPassword"
+                                   class="form-control border-0 bg-transparent py-2 shadow-none"
+                                   placeholder="••••••••" required />
+                            <button type="button" class="btn border-0 text-muted shadow-none" id="toggleLoginPassword">
+                                <i class="bi bi-eye">👁</i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-3 fw-bold shadow-sm transition-all hover-up">
+                        Войти в аккаунт
+                    </button>
+                </form>
+
+                <div class="text-center mt-4 pt-2">
+                    <p class="text-muted small mb-0">
+                        Впервые в CryptoNet?
+                        <a asp-controller="Account" asp-action="Register" class="text-primary fw-bold text-decoration-none">Создать аккаунт</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Основной фон как в чате и регистрации */
+    .auth-page {
+        background: radial-gradient(circle at top right, #f8f9ff, #e9ecef);
+        min-height: 90vh;
+    }
+
+    /* Стили карточки */
+    .auth-card {
+        transition: all 0.3s ease;
+    }
+
+    .auth-icon-circle {
+        width: 60px;
+        height: 60px;
+        background: rgba(13, 110, 253, 0.05);
+        color: #0d6efd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    /* Поля ввода */
+    .input-group:focus-within {
+        background-color: #fff !important;
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 4px rgba(13,110,253,0.1);
+    }
+
+    .form-control::placeholder {
+        font-size: 0.9rem;
+        opacity: 0.5;
+    }
+
+    /* Кнопки и анимации */
+    .hover-up:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(13,110,253,0.2) !important;
+    }
+
+    .bg-light-danger {
+        background: #fff5f5;
+    }
+
+    .alert-danger ul {
+        margin-bottom: 0;
+        padding-left: 1rem;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        const toggleBtn = document.getElementById('toggleLoginPassword');
+        const passInput = document.getElementById('loginPassword');
+
+        toggleBtn.addEventListener('click', function() {
+            const type = passInput.type === 'password' ? 'text' : 'password';
+            passInput.type = type;
+        });
+    </script>
+}

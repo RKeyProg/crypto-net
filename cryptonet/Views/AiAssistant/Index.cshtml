@@ -1,0 +1,243 @@
+﻿@model List<dynamic>
+@{
+    ViewData["Title"] = "AI Assistant | CryptoNet";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<div class="container-fluid chat-wrapper py-4">
+    <div class="row justify-content-center h-100">
+        <div class="col-xl-8 col-lg-10 col-md-12 h-100">
+
+            <div class="chat-card shadow-lg border-0 rounded-4 d-flex flex-column">
+
+                <div class="chat-header p-3 border-bottom d-flex align-items-center justify-content-between bg-white rounded-top-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-wrapper shadow-sm">
+                            <i class="bi bi-cpu-fill"></i>
+                            <span class="status-indicator"></span>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="mb-0 fw-bold text-dark">CryptoNet Intelligence</h5>
+                            <span class="badge bg-soft-success text-success fw-normal">Online | Llama 3.3 Turbo</span>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-light btn-sm rounded-circle shadow-sm" title="Очистить историю">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="chat-body p-4 bg-light flex-grow-1" id="chatContainer">
+
+                    <div class="message-row bot d-flex mb-4">
+                        <div class="message-bubble shadow-sm p-3 border">
+                            <p class="mb-0">Здравствуйте! Я ваш аналитический ассистент. Я изучил ваш портфель и готов помочь с прогнозами или анализом рисков. 📈</p>
+                        </div>
+                    </div>
+
+                    @if (Model != null)
+                    {
+                        @foreach (var msg in Model)
+                        {
+                            <div class="message-row user d-flex mb-4 justify-content-end">
+                                <div class="message-bubble p-3 shadow-sm text-white">
+                                    <p class="mb-0">@msg.Question</p>
+                                    <small class="time-stamp opacity-75">@msg.Date</small>
+                                </div>
+                            </div>
+
+                            <div class="message-row bot d-flex mb-4">
+                                <div class="message-bubble shadow-sm p-3 border bg-white">
+                                    <div class="ai-content">
+                                        @Html.Raw(msg.Answer.Replace("\n", "<br>"))
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+
+                    <div id="typingIndicator" class="message-row bot mb-4" style="display:none;">
+                        <div class="message-bubble shadow-sm p-3 border bg-white d-inline-flex align-items-center">
+                            <div class="typing-loader">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <span class="ms-2 text-muted small">AI анализирует данные...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-footer p-3 bg-white rounded-bottom-4 border-top">
+                    <div class="quick-commands d-flex gap-2 mb-3 overflow-x-auto pb-2">
+                        <button onclick="sendQuick('Оцени уровень риска моего портфеля')" class="btn btn-outline-primary btn-sm rounded-pill text-nowrap">⚖️ Анализ риска</button>
+                        <button onclick="sendQuick('Топ-3 монеты на сегодня')" class="btn btn-outline-primary btn-sm rounded-pill text-nowrap">🔥 Топ монет</button>
+                        <button onclick="sendQuick('Покажи сводку новостей')" class="btn btn-outline-primary btn-sm rounded-pill text-nowrap">📰 Новости</button>
+                    </div>
+
+                    <form method="post" asp-action="Ask" id="chatForm" onsubmit="return handleFormSubmit()">
+                        <div class="input-container d-flex align-items-center bg-light rounded-pill p-1 border shadow-sm">
+                            <input name="question" id="chatInput" class="form-control border-0 bg-transparent ps-3 shadow-none"
+                                   placeholder="Введите сообщение..." required autocomplete="off">
+                            <button class="btn btn-primary btn-send rounded-circle shadow-sm" type="submit" id="sendBtn">
+                                <i class="bi bi-arrow-up-short fs-4"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Глобальный фон */
+    .chat-wrapper {
+        background: radial-gradient(circle at top left, #f8f9ff, #e9ecef);
+        height: 85vh;
+        min-height: 600px;
+    }
+
+    /* Карточка чата */
+    .chat-card {
+        height: 100%;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .chat-body {
+        overflow-y: auto;
+        background-image: radial-gradient(#dee2e6 0.5px, transparent 0.5px);
+        background-size: 20px 20px;
+    }
+
+    /* Аватар */
+    .avatar-wrapper {
+        width: 48px;
+        height: 48px;
+        background: #0d6efd;
+        color: white;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        position: relative;
+    }
+
+    .status-indicator {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 12px;
+        height: 12px;
+        background: #198754;
+        border: 2px solid #fff;
+        border-radius: 50%;
+    }
+
+    /* Сообщения */
+    .message-bubble {
+        max-width: 80%;
+        border-radius: 18px;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .user .message-bubble {
+        background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+        border-bottom-right-radius: 4px;
+    }
+
+    .bot .message-bubble {
+        background: #ffffff;
+        color: #212529;
+        border-bottom-left-radius: 4px;
+    }
+
+    .time-stamp {
+        font-size: 0.7rem;
+        display: block;
+        margin-top: 5px;
+    }
+
+    /* Поле ввода */
+    .input-container {
+        transition: all 0.3s ease;
+    }
+
+        .input-container:focus-within {
+            background: #fff !important;
+            border-color: #0d6efd !important;
+            box-shadow: 0 0 10px rgba(13,110,253,0.1) !important;
+        }
+
+    .btn-send {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Анимация печати */
+    .typing-loader span {
+        width: 6px;
+        height: 6px;
+        background: #adb5bd;
+        border-radius: 50%;
+        display: inline-block;
+        animation: typing 1s infinite;
+        margin-right: 3px;
+    }
+
+        .typing-loader span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-loader span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+    @@keyframes typing {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-5px);
+        }
+    }
+
+    /* Кастомные бейджи */
+    .bg-soft-success {
+        background: #e8f5e9;
+    }
+</style>
+
+<script>
+    const chatContainer = document.getElementById("chatContainer");
+
+    // Скролл в самый низ
+    function scrollToBottom() {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    window.onload = scrollToBottom;
+
+    function handleFormSubmit() {
+        const input = document.getElementById("chatInput");
+        if (!input.value.trim()) return false;
+
+        document.getElementById("typingIndicator").style.display = "block";
+        document.getElementById("sendBtn").disabled = true;
+        scrollToBottom();
+        return true;
+    }
+
+    function sendQuick(text) {
+        document.getElementById("chatInput").value = text;
+        handleFormSubmit();
+        document.getElementById("chatForm").submit();
+    }
+</script>

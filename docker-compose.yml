@@ -1,0 +1,48 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
+
+  ai:
+    build:
+      context: ./cryptonet
+      dockerfile: Dockerfile.ai
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./cryptonet
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      SKIP_PYTHON_LAUNCH: "true"
+      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE};User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Disabled;AllowPublicKeyRetrieval=true;Pooling=true;"
+      AiService__BaseUrl: "http://ai:5001"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      ai:
+        condition: service_started
+
+volumes:
+  mysql_data:

@@ -1,0 +1,9 @@
+**/.git
+**/.vs
+**/bin
+**/obj
+**/.env
+**/node_modules
+**/*.user
+**/*.suo
+**/Thumbs.db

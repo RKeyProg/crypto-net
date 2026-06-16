@@ -1,0 +1,300 @@
+﻿@model List<cryptonet.Models.PortfolioAssetViewModel>
+
+@{
+    ViewData["Title"] = "Мой Портфель | CryptoNet";
+    var total = (decimal)ViewBag.TotalValue;
+    var pnl = (decimal)ViewBag.TotalProfitLoss;
+    var invested = Model.Sum(a => a.Quantity * a.BuyPrice);
+    var percent = invested == 0 ? 0 : (pnl / invested) * 100;
+}
+
+<div class="container-fluid py-4 bg-light min-vh-100">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">💼 Личный портфель</h2>
+                <p class="text-muted small mb-0">Отслеживание прибыли и распределения активов</p>
+            </div>
+            <button class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addToPortfolioModal">
+                <i class="bi bi-plus-lg me-1"></i> Добавить актив
+            </button>
+        </div>
+
+        <div class="row g-3 mb-5">
+            <div class="col-md-4">
+                <div class="balance-card p-4 rounded-4 shadow-sm bg-white border-0 h-100 position-relative overflow-hidden">
+                    <div class="balance-decor bg-primary"></div>
+                    <small class="text-muted text-uppercase fw-bold smaller d-block mb-1">Общая стоимость</small>
+                    <h2 class="fw-bold mb-0">@total.ToString("N2") $</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="balance-card p-4 rounded-4 shadow-sm bg-white border-0 h-100 position-relative overflow-hidden">
+                    <div class="balance-decor @(pnl >= 0 ? "bg-success" : "bg-danger")"></div>
+                    <small class="text-muted text-uppercase fw-bold smaller d-block mb-1">Чистая прибыль</small>
+                    <h2 class="fw-bold mb-0 @(pnl >= 0 ? "text-success" : "text-danger")">
+                        @(pnl >= 0 ? "+" : "")@pnl.ToString("N2") $
+                    </h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="balance-card p-4 rounded-4 shadow-sm bg-white border-0 h-100 position-relative overflow-hidden">
+                    <div class="balance-decor @(percent >= 0 ? "bg-success" : "bg-danger")"></div>
+                    <small class="text-muted text-uppercase fw-bold smaller d-block mb-1">Доходность</small>
+                    <h2 class="fw-bold mb-0 @(percent >= 0 ? "text-success" : "text-danger")">
+                        @(percent >= 0 ? "▲" : "▼") @Math.Abs(percent).ToString("N2")%
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <h5 class="fw-bold mb-4">Распределение активов</h5>
+                    <div class="chart-container position-relative" style="height: 350px;">
+                        <canvas id="portfolioChart"></canvas>
+                        <div class="chart-center-text text-center">
+                            <span class="text-muted smaller d-block">Всего монет</span>
+                            <span class="fw-bold h4">@Model.Count</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <h5 class="fw-bold mb-4">Структура</h5>
+                    <div class="list-group list-group-flush">
+                        @foreach (var a in Model)
+                        {
+                            var share = total == 0 ? 0 : (a.CurrentValue / total) * 100;
+                            <div class="list-group-item bg-transparent px-0 border-light d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="coin-dot me-3" style="background: #0d6efd;"></div>
+                                    <div>
+                                        <span class="fw-bold d-block">@a.Name</span>
+                                        <span class="text-muted smaller">@a.Symbol.ToUpper() • @share.ToString("N1")%</span>
+                                    </div>
+                                </div>
+                                <span class="fw-bold text-dark">@a.CurrentValue.ToString("N2") $</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">Список активов</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-uppercase smaller fw-bold text-muted border-bottom">
+                        <tr>
+                            <th class="ps-4">Монета</th>
+                            <th>Количество</th>
+                            <th>Покупка ($)</th>
+                            <th>Рынок ($)</th>
+                            <th>PnL (%)</th>
+                            <th class="text-end pe-4">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var a in Model)
+                        {
+                            var assetPnl = a.BuyPrice == 0 ? 0 : ((a.CurrentPrice - a.BuyPrice) / a.BuyPrice) * 100;
+                            <tr>
+                                <td class="ps-4">
+                                    <span class="fw-bold text-dark">@a.Name</span>
+                                    <span class="text-muted smaller ms-1">@a.Symbol.ToUpper()</span>
+                                </td>
+                                <td>@a.Quantity</td>
+                                <td class="text-muted">@a.BuyPrice.ToString("N2")</td>
+                                <td class="fw-bold">@a.CurrentPrice.ToString("N2")</td>
+                                <td>
+                                    <span class="fw-bold @(assetPnl >= 0 ? "text-success" : "text-danger")">
+                                        @(assetPnl >= 0 ? "+" : "")@assetPnl.ToString("N2")%
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-light rounded-circle me-2"
+                                                data-bs-toggle="modal" data-bs-target="#editAssetModal"
+                                                data-coinid="@a.CoinId" data-name="@a.Name" data-quantity="@a.Quantity" data-buyprice="@a.BuyPrice">
+                                            <i class="bi bi-pencil-square text-primary"></i>
+                                        </button>
+                                        <form method="post" asp-action="Delete" class="d-inline">
+                                            <input type="hidden" name="coinId" value="@a.CoinId" />
+                                            <button type="submit" class="btn btn-sm btn-light rounded-circle text-danger"><i class="bi bi-trash3"></i></button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal fade" id="addToPortfolioModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="fw-bold">Добавить актив</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form asp-controller="Portfolio" asp-action="Add" method="post">
+                        <div class="modal-body p-4">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Выберите монету</label>
+                                <select name="coinId" class="form-select bg-light border-0 py-2 shadow-none rounded-3" required>
+                                    <option value="">-- Выберите монету --</option>
+                                    @if (ViewBag.AllCoins != null)
+                                    {
+                                        foreach (var coin in ViewBag.AllCoins)
+                                        {
+                                            <option value="@coin.Id">@coin.Name (@coin.Symbol.ToUpper())</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Количество</label>
+                                <input type="number" step="0.000001" name="quantity" class="form-control bg-light border-0 py-2 shadow-none rounded-3" placeholder="0.00" required />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Цена покупки ($)</label>
+                                <input type="number" step="0.01" name="buyPrice" class="form-control bg-light border-0 py-2 shadow-none rounded-3" placeholder="0.00" required />
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 pt-0 p-4">
+                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Отмена</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="editAssetModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="fw-bold">Редактировать актив</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form asp-controller="Portfolio" asp-action="Update" method="post">
+                        <div class="modal-body p-4">
+                            <input type="hidden" name="coinId" id="editCoinId" />
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Монета</label>
+                                <input type="text" id="editCoinName" class="form-control bg-light border-0 py-2 shadow-none rounded-3" disabled />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Количество</label>
+                                <input type="number" step="0.000001" name="quantity" id="editQuantity" class="form-control bg-light border-0 py-2 shadow-none rounded-3" required />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Цена покупки ($)</label>
+                                <input type="number" step="0.01" name="buyPrice" id="editBuyPrice" class="form-control bg-light border-0 py-2 shadow-none rounded-3" required />
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 pt-0 p-4">
+                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Отмена</button>
+                            <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm">Обновить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .balance-card {
+        transition: all 0.3s;
+    }
+
+        .balance-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .balance-decor {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 4px;
+        height: 100%;
+    }
+
+    .smaller {
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .coin-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .chart-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chart-center-text {
+        position: absolute;
+        top: 52%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .table thead th {
+        font-size: 0.7rem;
+        border-bottom: 0;
+    }
+
+    .bg-primary {
+        background: linear-gradient(135deg, #0d6efd, #0b5ed7) !important;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(a => a.Symbol.ToUpper())));
+    const values = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(a => a.CurrentValue)));
+
+    const ctx = document.getElementById('portfolioChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: ['#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#fd7e14', '#198754', '#20c997'],
+                borderWidth: 0,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '80%',
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Скрипт для модалки редактирования
+    const editModal = document.getElementById('editAssetModal');
+    if (editModal) {
+        editModal.addEventListener('show.bs.modal', function (event) {
+            const btn = event.relatedTarget;
+            document.getElementById('editCoinId').value = btn.getAttribute('data-coinid');
+            document.getElementById('editCoinName').value = btn.getAttribute('data-name');
+            document.getElementById('editQuantity').value = btn.getAttribute('data-quantity');
+            document.getElementById('editBuyPrice').value = btn.getAttribute('data-buyprice');
+        });
+    }
+</script>

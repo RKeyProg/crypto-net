@@ -1,0 +1,157 @@
+﻿@model List<dynamic>
+
+@{
+    ViewData["Title"] = "Crypto News | CryptoNet Intelligence";
+    var ai = ViewBag.AI;
+    string selected = ViewBag.SelectedSentiment;
+}
+
+<div class="container-fluid py-4 bg-light min-vh-100">
+    <div class="container">
+        
+        @* <div class="alert alert-dark m-3 small border-0 shadow-sm rounded-3">
+            <b>Техническая отладка:</b> <br />
+            Статус авторизации: @User.Identity?.IsAuthenticated |
+            Данные в ViewBag.AI: @(ai != null ? "Доставлены" : "Отсутствуют") |
+            Текущий Sentiment: <span class="badge bg-secondary">@(ai?.Sentiment ?? "null")</span>
+        </div> *@
+        
+        @if (ai != null)
+        {
+            // Безопасное определение цвета плашки (переводим в нижний регистр)
+            string aiSentiment = Convert.ToString(ai.Sentiment).ToLower();
+            var sentimentColor = aiSentiment == "positive" ? "success" :
+            aiSentiment == "negative" ? "danger" : "primary";
+
+            <div class="ai-verdict-card border-0 shadow-lg rounded-4 overflow-hidden mb-5 bg-white" style="border-left: 8px solid #0d6efd !important;">
+                <div class="card-body p-4 p-md-5 d-flex align-items-center position-relative" style="z-index: 1;">
+                    <div class="ai-blur-bg" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 10% 20%, rgba(13,110,253,0.05) 0%, transparent 50%); z-index: -1;"></div>
+                    <div class="row align-items-center w-100">
+                        <div class="col-md-auto text-center mb-3 mb-md-0">
+                            <div class="display-4" style="animation: ai-float 3s ease-in-out infinite;">🤖</div>
+                        </div>
+                        <div class="col-md">
+                            <h4 class="fw-bold mb-2">
+                                AI-Вердикт по рынку:
+                                <span class="badge rounded-pill bg-@sentimentColor bg-opacity-10 text-@sentimentColor px-3 ms-2 text-uppercase">
+                                    @ai.Sentiment
+                                </span>
+                            </h4>
+                            <p class="lead text-dark opacity-75 mb-0">@ai.Summary</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="row g-3 mb-5 align-items-center">
+            <div class="col-lg-7">
+                <div class="nav-pills-container bg-white p-1 rounded-pill shadow-sm d-inline-flex border">
+                    <a class="nav-pill @(string.IsNullOrEmpty(selected) ? "active" : "")" href="/News">Все</a>
+                    <a class="nav-pill text-success @(selected == "positive" ? "active" : "")" href="/News?sentiment=positive">📈 Позитив</a>
+                    <a class="nav-pill text-secondary @(selected == "neutral" ? "active" : "")" href="/News?sentiment=neutral">⚖️ Нейтрально</a>
+                    <a class="nav-pill text-danger @(selected == "negative" ? "active" : "")" href="/News?sentiment=negative">📉 Негатив</a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <form method="get" action="/News" class="position-relative">
+                    <input type="hidden" name="sentiment" value="@selected" />
+                    <input type="text" name="search" class="form-control rounded-pill border-0 shadow-sm ps-4 py-3"
+                           placeholder="Поиск по ключевым словам..." value="@ViewBag.SearchQuery">
+                    <button class="btn btn-primary rounded-circle position-absolute end-0 top-50 translate-middle-y me-2" type="submit" style="width: 42px; height: 42px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                        🔍
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var n in Model)
+            {
+                string newsSentiment = Convert.ToString(n.Sentiment).ToLower();
+                var sColor = newsSentiment == "positive" ? "success" :
+                newsSentiment == "negative" ? "danger" : "secondary";
+
+                <div class="col-xl-6 col-12">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 bg-white news-card transition-all">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge bg-@sColor bg-opacity-10 text-@sColor border border-@sColor border-opacity-10 px-3 py-2 text-uppercase" style="font-size: 0.7rem;">
+                                    @n.Sentiment
+                                </span>
+                                <small class="text-muted fw-medium">
+                                    @n.PublishedAt.ToString("HH:mm | dd MMM")
+                                </small>
+                            </div>
+
+                            <h5 class="fw-bold mb-3 text-dark lh-base">@n.Title</h5>
+                            <p class="text-muted small mb-4 flex-grow-1">@n.Summary</p>
+
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top border-light">
+                                <div class="d-flex align-items-center">
+                                    <div class="source-avatar me-2" style="width: 24px; height: 24px; background: #e9ecef; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: #0d6efd;">
+                                        @(string.IsNullOrEmpty(n.Source) ? "N" : n.Source.Substring(0, 1))
+                                    </div>
+                                    <span class="small fw-bold text-dark">@n.Source</span>
+                                </div>
+                                <a href="@n.Url" target="_blank" class="btn btn-sm btn-light rounded-pill px-3 fw-bold text-primary">
+                                    Источник →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <div class="display-1 mb-4 opacity-10">🕵️‍♂️</div>
+                <h3 class="fw-bold text-dark">Ничего не найдено</h3>
+                <p class="text-muted">Попробуйте изменить запрос или сбросить фильтры</p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .nav-pill {
+        padding: 8px 20px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #6c757d;
+        transition: all 0.2s;
+    }
+
+        .nav-pill:hover {
+            background: #f8f9fa;
+        }
+
+        .nav-pill.active {
+            background: #0d6efd !important;
+            color: #fff !important;
+            box-shadow: 0 4px 10px rgba(13,110,253,0.2);
+        }
+
+    .news-card {
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+    }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
+        }
+
+    @@keyframes ai-float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+</style>

@@ -1,0 +1,18 @@
+# === Папки скомпилированного кода (мусор, который создает Visual Studio) ===
+bin/
+obj/
+
+# === Настройки самой Visual Studio (локальные кэши) ===
+.vs/
+*.user
+*.suo
+
+# === Безопасность (скрываем настройки разработки и ключи API) ===
+appsettings.Development.json
+.env
+
+# === Мусор операционной системы ===
+Thumbs.db
+Desktop.ini
+
+launchSettings.json
