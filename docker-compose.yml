@@ -35,6 +35,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      ENABLE_HTTPS: "false"
       SKIP_PYTHON_LAUNCH: "true"
       ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE};User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Disabled;AllowPublicKeyRetrieval=true;Pooling=true;"
       AiService__BaseUrl: "http://ai:5001"

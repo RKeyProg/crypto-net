@@ -3,6 +3,7 @@ using cryptonet.Models;
 using cryptonet.Services;
 using cryptonet.Workers;
 using DotNetEnv;
+using Microsoft.AspNetCore.HttpOverrides;
 using System.Diagnostics;
 
 Env.TraversePath().Load();
@@ -26,7 +27,15 @@ if (!skipPythonLaunch)
     }
 }
 
+var enableHttps = Environment.GetEnvironmentVariable("ENABLE_HTTPS") == "true";
+
 builder.Services.Configure<AiServiceSettings>(builder.Configuration.GetSection("AiService"));
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<cryptonet.Filters.AuthFilter>();
 builder.Services.AddSingleton<DbConnectionFactory>();
@@ -43,13 +52,22 @@ builder.Services.AddHostedService<NewsWorkerService>();
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+
+    if (enableHttps)
+    {
+        app.UseHsts();
+    }
 }
 
-app.UseHttpsRedirection();
+if (enableHttps)
+{
+    app.UseHttpsRedirection();
+}
 app.UseStaticFiles();
 
 app.UseRouting();
